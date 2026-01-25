@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <springProperty name="app_name"
+                    source="spring.application.name"/>
+
+    <springProperty name="loki_url"
+                    source="loki.url"
+                    defaultValue="http://localhost:3100/loki/api/v1/push"/>
+
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+
+        <message>
+            <pattern>%d{HH:mm:ss} %-5level [%thread] %logger - %message</pattern>
+        </message>
+
+        <label>
+            <pattern>app=${app_name},level=%level</pattern>
+        </label>
+
+        <http>
+            <url>${loki_url}</url>
+        </http>
+
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="LOKI"/>
+    </root>
+
+</configuration>
