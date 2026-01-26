@@ -2,29 +2,37 @@
 <configuration>
 
     <springProperty name="app_name"
-                    source="spring.application.name"/>
+                    source="spring.application.name"
+                    defaultValue="api-gateway"/>
 
     <springProperty name="loki_url"
                     source="loki.url"
                     defaultValue="http://localhost:3100/loki/api/v1/push"/>
 
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
-
-        <message>
-            <pattern>%d{HH:mm:ss} %-5level [%thread] %logger - %message</pattern>
-        </message>
-
-        <label>
-            <pattern>app=${app_name},level=%level</pattern>
-        </label>
-
         <http>
             <url>${loki_url}</url>
         </http>
 
+        <format>
+            <label>
+                <pattern>app=${app_name},level=%level</pattern>
+            </label>
+            <message>
+                <pattern>%d{HH:mm:ss} %-5level [%thread] %logger - %message</pattern>
+            </message>
+            <sortByTimestamp>true</sortByTimestamp>
+        </format>
     </appender>
 
     <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
         <appender-ref ref="LOKI"/>
     </root>
 

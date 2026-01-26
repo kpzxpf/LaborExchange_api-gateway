@@ -5,6 +5,9 @@ spring:
   application:
     name: api-gateway
 
+  loki:
+    url: http://localhost:3100/loki/api/v1/push
+
   cloud:
     gateway:
       routes:
@@ -35,3 +38,8 @@ spring:
 
 jwt:
   secret: "supersecretkeyforjwtinjobexchange"
+
+  logging:
+    level:
+      org.springframework.cloud.gateway: INFO
+      com.vlz: DEBUG
