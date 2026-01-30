@@ -5,8 +5,10 @@ spring:
   application:
     name: api-gateway
 
-  loki:
-    url: http://localhost:3100/loki/api/v1/push
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
   cloud:
     gateway:
@@ -25,6 +27,12 @@ spring:
           uri: http://localhost:8083
           predicates:
             - Path=/api/vacancies/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@userKeyResolver}"
 
         - id: resume-service
           uri: http://localhost:8084
@@ -36,10 +44,19 @@ spring:
           predicates:
             - Path=/api/applications/**
 
-jwt:
-  secret: "supersecretkeyforjwtinjobexchange"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: always
 
-  logging:
-    level:
-      org.springframework.cloud.gateway: INFO
-      com.vlz: DEBUG
+jwt:
+  secret: ${jwt.secret}
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    com.vlz: DEBUG
