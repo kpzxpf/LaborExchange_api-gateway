@@ -24,7 +24,7 @@ import java.util.List;
 @Slf4j
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
-    @Value("${jwt.secret}")
+    @Value("${spring.jwt.secret}")
     private String secret;
 
     private static final List<String> EXCLUDED_URLS = List.of(
