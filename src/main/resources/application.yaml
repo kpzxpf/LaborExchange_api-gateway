@@ -5,6 +5,8 @@ spring:
   application:
     name: api-gateway
 
+  profiles:
+    default: local
   data:
     redis:
       host: localhost
@@ -45,3 +47,9 @@ logging:
   level:
     org.springframework.cloud.gateway: INFO
     com.vlz: DEBUG
+
+app:
+  cors:
+    allowed-origins:
+      - "http://localhost:3000"
+      - "http://127.0.0.1:3000"
