@@ -28,15 +28,35 @@ spring:
           predicates:
             - Path=/api/users/**
 
+        - id: role-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/roles/**
+
         - id: vacancy-service
           uri: http://localhost:8083
           predicates:
             - Path=/api/vacancies/**
 
+        - id: company-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/companies/**
+
         - id: resume-service
           uri: http://localhost:8084
           predicates:
             - Path=/api/resumes/**
+
+        - id: education-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/educations/**
+
+        - id: skill-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/skills/**
 
         - id: application-service
           uri: http://localhost:8085

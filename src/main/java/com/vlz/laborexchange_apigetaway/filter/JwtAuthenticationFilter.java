@@ -61,8 +61,16 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                     .setSigningKey(key).build()
                     .parseClaimsJws(token).getBody();
 
-            String userId = claims.getSubject();
+            Object userIdObj = claims.get("userId");
+            String userId = userIdObj != null ? userIdObj.toString() : null;
             String role = claims.get("role", String.class);
+
+            log.debug("JWT Claims - userId: {}, role: {}, subject: {}", userId, role, claims.getSubject());
+
+            if (userId == null) {
+                log.error("userId not found in JWT claims");
+                return onError(exchange, "Invalid Token: userId missing", HttpStatus.UNAUTHORIZED);
+            }
 
             if (path.startsWith("/api/vacancies") && HttpMethod.POST.equals(request.getMethod())) {
                 if (!"EMPLOYER".equals(role)) {
@@ -73,7 +81,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
             ServerWebExchange modifiedExchange = exchange.mutate()
                     .request(r -> r.header("X-User-Id", userId)
-                            .header("X-User-Role", role))
+                            .header("X-User-Role", role)
+                            .header("X-User-Email", claims.getSubject()))
                     .build();
 
             return chain.filter(modifiedExchange).then(Mono.fromRunnable(() -> {
@@ -82,7 +91,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             }));
 
         } catch (Exception e) {
-            log.error("JWT Error: {}", e.getMessage());
+            log.error("JWT Error: {}", e.getMessage(), e);
             return onError(exchange, "Invalid Token", HttpStatus.UNAUTHORIZED);
         }
     }
