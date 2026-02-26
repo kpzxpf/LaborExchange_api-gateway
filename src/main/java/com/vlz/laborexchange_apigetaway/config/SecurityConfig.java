@@ -18,7 +18,9 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeExchange(exchanges -> exchanges
                         .anyExchange().permitAll()
-                );
+                )
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable);
 
         return http.build();
     }

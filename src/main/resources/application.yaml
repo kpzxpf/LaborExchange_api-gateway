@@ -53,15 +53,20 @@ spring:
           predicates:
             - Path=/api/educations/**
 
-        - id: skill-service
-          uri: http://localhost:8084
+        - id: search-service
+          uri: http://localhost:8087
           predicates:
-            - Path=/api/skills/**
+            - Path=/api/search/**
 
         - id: application-service
           uri: http://localhost:8085
           predicates:
             - Path=/api/applications/**
+
+        - id: skill-service
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/skills/**
 
 logging:
   level:
@@ -70,6 +75,4 @@ logging:
 
 app:
   cors:
-    allowed-origins:
-      - "http://localhost:3000"
-      - "http://127.0.0.1:3000"
+    allowed-origins: "http://localhost:3000,http://127.0.0.1:3000"

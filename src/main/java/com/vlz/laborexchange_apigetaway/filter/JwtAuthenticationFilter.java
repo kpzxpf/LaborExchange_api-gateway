@@ -29,7 +29,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     private static final List<String> EXCLUDED_URLS = List.of(
             "/api/auth/register",
-            "/api/auth/login"
+            "/api/auth/login",
+            "/api/vacancies/reindex",
+            "/api/resumes/reindex"
     );
 
     @Override
