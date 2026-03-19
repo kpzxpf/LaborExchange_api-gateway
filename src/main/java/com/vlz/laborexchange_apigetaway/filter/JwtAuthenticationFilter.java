@@ -74,9 +74,12 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 return onError(exchange, "Invalid Token: userId missing", HttpStatus.UNAUTHORIZED);
             }
 
-            if (path.startsWith("/api/vacancies") && HttpMethod.POST.equals(request.getMethod())) {
+            if (path.startsWith("/api/vacancies") && (
+                    HttpMethod.POST.equals(request.getMethod()) ||
+                    HttpMethod.PUT.equals(request.getMethod()) ||
+                    HttpMethod.DELETE.equals(request.getMethod()))) {
                 if (!"EMPLOYER".equals(role)) {
-                    log.warn("Access Denied: User {} with role {} tried to create vacancy", userId, role);
+                    log.warn("Access Denied: User {} with role {} tried to modify/delete vacancy", userId, role);
                     return onError(exchange, "Access denied: Employers only", HttpStatus.FORBIDDEN);
                 }
             }

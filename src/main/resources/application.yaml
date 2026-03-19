@@ -9,8 +9,14 @@ spring:
     default: local
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 1000ms
+      lettuce:
+        pool:
+          max-active: 20
+          max-idle: 10
+          min-idle: 5
 
   jwt:
     secret: ${secret-jwt-key}
@@ -76,3 +82,29 @@ logging:
 app:
   cors:
     allowed-origins: "http://localhost:3000,http://127.0.0.1:3000"
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: auth-service
+        url: /api/auth/v3/api-docs
+      - name: user-service
+        url: /api/users/v3/api-docs
+      - name: vacancy-service
+        url: /api/vacancies/v3/api-docs
+      - name: resume-service
+        url: /api/resumes/v3/api-docs
+      - name: application-service
+        url: /api/applications/v3/api-docs
+      - name: skill-service
+        url: /api/skills/v3/api-docs
+      - name: search-service
+        url: /api/search/v3/api-docs
+
+rate-limit:
+  general:
+    max-requests: 100
+    window-ms: 60000
+  auth:
+    max-requests: 20
+    window-ms: 60000
