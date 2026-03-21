@@ -28,6 +28,7 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,7 +45,7 @@ class JwtAuthenticationFilterTest {
     void setUp() {
         filter = new JwtAuthenticationFilter();
         ReflectionTestUtils.setField(filter, "secret", SECRET);
-        when(chain.filter(any())).thenReturn(Mono.empty());
+        lenient().when(chain.filter(any())).thenReturn(Mono.empty());
     }
 
     private String buildToken(Long userId, String role, String email) {
