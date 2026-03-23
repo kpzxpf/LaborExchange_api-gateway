@@ -27,11 +27,10 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     @Value("${spring.jwt.secret}")
     private String secret;
 
-    private static final List<String> EXCLUDED_URLS = List.of(
+    // Only exact paths that are publicly accessible without a JWT
+    private static final List<String> EXCLUDED_EXACT_PATHS = List.of(
             "/api/auth/register",
-            "/api/auth/login",
-            "/api/vacancies/reindex",
-            "/api/resumes/reindex"
+            "/api/auth/login"
     );
 
     @Override
@@ -46,17 +45,25 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
-        boolean isExcluded = EXCLUDED_URLS.stream().anyMatch(path::contains);
+        boolean isExcluded = EXCLUDED_EXACT_PATHS.stream().anyMatch(path::equals);
         if (isExcluded) {
             return chain.filter(exchange);
         }
 
-        String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return onError(exchange, "Missing Authorization Header", HttpStatus.UNAUTHORIZED);
+        // SSE endpoint: EventSource cannot send headers, so accept token from ?token= query param
+        String token;
+        if (path.equals("/api/notifications/stream")) {
+            token = request.getQueryParams().getFirst("token");
+            if (token == null || token.isBlank()) {
+                return onError(exchange, "Missing token query parameter", HttpStatus.UNAUTHORIZED);
+            }
+        } else {
+            String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return onError(exchange, "Missing Authorization Header", HttpStatus.UNAUTHORIZED);
+            }
+            token = authHeader.substring(7);
         }
-
-        String token = authHeader.substring(7);
         try {
             Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
             Claims claims = Jwts.parserBuilder()
@@ -80,6 +87,16 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                     HttpMethod.DELETE.equals(request.getMethod()))) {
                 if (!"EMPLOYER".equals(role)) {
                     log.warn("Access Denied: User {} with role {} tried to modify/delete vacancy", userId, role);
+                    return onError(exchange, "Access denied: Employers only", HttpStatus.FORBIDDEN);
+                }
+            }
+
+            if (path.startsWith("/api/companies") && (
+                    HttpMethod.POST.equals(request.getMethod()) ||
+                    HttpMethod.PUT.equals(request.getMethod()) ||
+                    HttpMethod.DELETE.equals(request.getMethod()))) {
+                if (!"EMPLOYER".equals(role)) {
+                    log.warn("Access Denied: User {} with role {} tried to modify/delete company", userId, role);
                     return onError(exchange, "Access denied: Employers only", HttpStatus.FORBIDDEN);
                 }
             }

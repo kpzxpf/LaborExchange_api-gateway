@@ -74,17 +74,30 @@ public class RateLimitingFilter implements GlobalFilter, Ordered {
             });
     }
 
+    private static final List<String> TRUSTED_PROXY_PREFIXES = List.of(
+            "127.", "10.", "172.16.", "172.17.", "172.18.", "172.19.",
+            "172.20.", "172.21.", "172.22.", "172.23.", "172.24.", "172.25.",
+            "172.26.", "172.27.", "172.28.", "172.29.", "172.30.", "172.31.",
+            "192.168."
+    );
+
     private String getClientIp(ServerWebExchange exchange) {
-        String forwarded = exchange.getRequest().getHeaders().getFirst("X-Forwarded-For");
-        if (forwarded != null && !forwarded.isBlank()) {
-            return forwarded.split(",")[0].trim();
-        }
         var address = exchange.getRequest().getRemoteAddress();
-        return address != null ? address.getAddress().getHostAddress() : "unknown";
+        String remoteIp = address != null ? address.getAddress().getHostAddress() : "unknown";
+        // Only trust X-Forwarded-For when the TCP connection comes from a known internal proxy
+        boolean isTrustedProxy = TRUSTED_PROXY_PREFIXES.stream().anyMatch(remoteIp::startsWith);
+        if (isTrustedProxy) {
+            String forwarded = exchange.getRequest().getHeaders().getFirst("X-Forwarded-For");
+            if (forwarded != null && !forwarded.isBlank()) {
+                return forwarded.split(",")[0].trim();
+            }
+        }
+        return remoteIp;
     }
 
     @Override
     public int getOrder() {
-        return -5;
+        // Must run BEFORE JwtAuthenticationFilter (order -10) to rate-limit before auth processing
+        return -11;
     }
 }

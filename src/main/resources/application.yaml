@@ -59,6 +59,11 @@ spring:
           predicates:
             - Path=/api/educations/**
 
+        - id: work-experience-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/work-experience/**
+
         - id: search-service
           uri: http://localhost:8087
           predicates:
@@ -73,6 +78,46 @@ spring:
           uri: http://localhost:8086
           predicates:
             - Path=/api/skills/**
+
+        - id: notification-service
+          uri: http://localhost:8088
+          predicates:
+            - Path=/api/notifications/**
+
+        - id: statistics-service
+          uri: http://localhost:8089
+          predicates:
+            - Path=/api/stats/**
+
+        - id: favorite-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/favorites/**
+
+        - id: admin-user-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/admin/**
+
+        - id: chat-service
+          uri: http://localhost:8090
+          predicates:
+            - Path=/api/chat/**
+
+        - id: chat-service-ws
+          uri: lb:ws://localhost:8090
+          predicates:
+            - Path=/ws-chat/**
+
+        - id: alert-service
+          uri: http://localhost:8091
+          predicates:
+            - Path=/api/alerts/**
+
+        - id: review-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/reviews/**
 
 logging:
   level:
@@ -100,6 +145,22 @@ springdoc:
         url: /api/skills/v3/api-docs
       - name: search-service
         url: /api/search/v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://${ZIPKIN_HOST:localhost}:9411/api/v2/spans
 
 rate-limit:
   general:
