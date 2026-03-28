@@ -45,7 +45,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
-        boolean isExcluded = EXCLUDED_EXACT_PATHS.stream().anyMatch(path::equals);
+        boolean isExcluded = EXCLUDED_EXACT_PATHS.stream().anyMatch(path::equals)
+                || path.startsWith("/ws-chat/");
         if (isExcluded) {
             return chain.filter(exchange);
         }

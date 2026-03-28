@@ -48,6 +48,11 @@ public class RateLimitingFilter implements GlobalFilter, Ordered {
         String clientIp = getClientIp(exchange);
         String path = exchange.getRequest().getPath().value();
 
+        // WebSocket/SockJS paths use persistent connections — exclude from per-request rate limiting
+        if (path.startsWith("/ws-chat/")) {
+            return chain.filter(exchange);
+        }
+
         boolean isAuthPath = path.startsWith("/api/auth/");
         int limit = isAuthPath ? AUTH_MAX_REQUESTS : MAX_REQUESTS;
         String key = "rate_limit:" + clientIp + ":" + (isAuthPath ? "auth" : "general");
