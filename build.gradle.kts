@@ -38,6 +38,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0")
     implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
     implementation("io.micrometer:micrometer-registry-prometheus")
+    runtimeOnly("io.prometheus:prometheus-metrics-exposition-formats:1.2.1")
 
     // Distributed Tracing
     implementation("io.micrometer:micrometer-tracing-bridge-brave")
